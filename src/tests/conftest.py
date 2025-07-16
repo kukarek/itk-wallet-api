@@ -1,19 +1,25 @@
 import asyncio
+import os
+import sys
+
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-import os, sys
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from main import app
 from src.core.dependencies import get_db
 from src.models.db_models import Base
-from main import app
 
 DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 
 engine_test = create_async_engine(DATABASE_URL, echo=False)
-TestSessionLocal = sessionmaker(engine_test, expire_on_commit=False, class_=AsyncSession)
+TestSessionLocal = sessionmaker(
+    engine_test, expire_on_commit=False, class_=AsyncSession
+)
+
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def prepare_database():
@@ -26,11 +32,13 @@ async def prepare_database():
     if os.path.exists("test.db"):
         os.remove("test.db")
 
+
 @pytest_asyncio.fixture(scope="function")
 async def db_session():
     async with TestSessionLocal() as session:
         yield session
         await session.rollback()
+
 
 @pytest_asyncio.fixture(scope="function")
 async def client(db_session):
@@ -44,6 +52,7 @@ async def client(db_session):
         yield ac
 
     app.dependency_overrides.clear()
+
 
 @pytest.fixture(scope="session")
 def event_loop():

@@ -1,9 +1,10 @@
-import pytest
-from unittest.mock import AsyncMock
-from src.services.auth_service import AuthService
-from src.models.schemas.user import UserCreate
-from src.models.db_models import User
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
+
+from src.models.db_models import User
+from src.models.schemas.user import UserCreate
+from src.services.auth_service import AuthService
 
 
 @pytest.mark.asyncio
@@ -27,7 +28,9 @@ async def test_authenticate_with_wrong_password():
     session = AsyncMock()
     service = AuthService(session)
 
-    user = User(username="testuser", hashed_password=service.hash_password("correctpass"))
+    user = User(
+        username="testuser", hashed_password=service.hash_password("correctpass")
+    )
 
     scalars_mock = MagicMock()
     scalars_mock.first.return_value = user
@@ -39,4 +42,3 @@ async def test_authenticate_with_wrong_password():
 
     result = await service.authenticate_user("testuser", "wrongpass")
     assert result is None
-

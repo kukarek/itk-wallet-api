@@ -1,9 +1,10 @@
-from passlib.context import CryptContext
 from jose import jwt
+from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.core.config import get_settings
 from src.models.db_models import User, Wallet
 from src.models.schemas.user import UserCreate
-from src.core.config import get_settings
 from src.repository.user import UserRepository
 from src.repository.wallet import WalletRepository
 
@@ -25,7 +26,9 @@ class AuthService:
 
     def create_token_for_user(self, user: User) -> str:
         payload = {"sub": str(user.id)}
-        token = jwt.encode(payload, settings.jwt.SECRET_KEY, algorithm=settings.jwt.ALGORITHM)
+        token = jwt.encode(
+            payload, settings.jwt.SECRET_KEY, algorithm=settings.jwt.ALGORITHM
+        )
         return token
 
     async def get_user_by_username(self, username: str) -> User | None:
@@ -42,10 +45,7 @@ class AuthService:
     async def create_user(self, user_create: UserCreate) -> User:
         hashed_password = self.hash_password(user_create.password)
 
-        new_user = User(
-            username=user_create.username,
-            hashed_password=hashed_password
-        )
+        new_user = User(username=user_create.username, hashed_password=hashed_password)
 
         await self.user_repo.create_user(new_user)
         # Создаем кошелек при создании пользователя

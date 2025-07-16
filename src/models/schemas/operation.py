@@ -1,9 +1,10 @@
-from pydantic import BaseModel, Field
-from enum import Enum
+from datetime import datetime
 from decimal import Decimal
+from enum import Enum
 from typing import Annotated
 from uuid import UUID
-from datetime import datetime
+
+from pydantic import BaseModel, Field
 
 
 class OperationType(str, Enum):

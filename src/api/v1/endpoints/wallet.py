@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.core.dependencies import get_current_user, get_db
+from src.models.db_models import User
 from src.models.schemas.operation import OperationCreate, OperationRead
 from src.models.schemas.wallet import WalletRead
 from src.services.wallet_service import WalletService
-from src.core.dependencies import get_current_user, get_db
-from src.models.db_models import User
 
 router = APIRouter(prefix="/wallets", tags=["wallets"])
 

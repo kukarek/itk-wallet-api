@@ -1,9 +1,10 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from uuid import UUID
 from decimal import Decimal
-from fastapi import HTTPException, status
+from uuid import UUID
 
-from src.models.db_models import Wallet, OperationType
+from fastapi import HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.models.db_models import OperationType, Wallet
 from src.models.schemas.operation import OperationCreate, OperationRead
 from src.repository.wallet import WalletRepository
 
@@ -23,7 +24,9 @@ class WalletService:
             )
         return wallet
 
-    async def create_operation(self, wallet_id: UUID, op_create: OperationCreate) -> OperationRead:
+    async def create_operation(
+        self, wallet_id: UUID, op_create: OperationCreate
+    ) -> OperationRead:
         wallet = await self.repo.get_wallet(wallet_id)
         if not wallet:
             raise ValueError("Wallet not found")
@@ -32,11 +35,16 @@ class WalletService:
         if amount <= 0:
             raise ValueError("Amount must be positive")
 
-        if op_create.operation_type == OperationType.WITHDRAW and wallet.balance < amount:
+        if (
+            op_create.operation_type == OperationType.WITHDRAW
+            and wallet.balance < amount
+        ):
             raise ValueError("Insufficient funds")
 
         await self.repo.update_balance(wallet, amount, op_create.operation_type)
-        operation = await self.repo.create_operation(wallet_id, op_create.operation_type, amount)
+        operation = await self.repo.create_operation(
+            wallet_id, op_create.operation_type, amount
+        )
 
         await self.repo.commit()
         await self.repo.refresh(operation)
