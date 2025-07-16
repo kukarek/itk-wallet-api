@@ -66,24 +66,22 @@ http://localhost:8000/docs
 }
 ```
 
----
-
 ### 5. Авторизуйся в панели Swagger по логину и паролю
 
 ### 6. Получить ID своего кошелька
 
 Через sql запрос в отдельном терминале
 
----
+```
 docker exec -it itk-wallet-api-db-1 psql -U postgres 
 -d postgres
----
+```
 
---- sql 
+``` sql 
 SELECT w.id
 FROM wallets w
 JOIN users u ON w.user_id = u.id
 WHERE u.username = 'admin';
----
+```
 
 ## Теперь можно работать с кошельком!
